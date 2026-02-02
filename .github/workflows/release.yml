@@ -8,6 +8,7 @@ on:
 
 env:
   GODOT_VERSION: 4.3
+  PROJECT_PATH: .
 
 jobs:
   export-web:
