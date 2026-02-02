@@ -12,22 +12,33 @@ env:
   BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
 
 jobs:
-  export-web:
-    permissions:
-      contents: write
-    name: Web Export
+  build:
     runs-on: ubuntu-22.04
     container:
       image: barichello/godot-ci:4.3
-    steps:
-      - name: Install rsync
-        run: |
-          apt-get update && apt-get install -y rsync
 
+    steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           lfs: true
+
+      - name: Cache rsync
+        uses: actions/cache@v3
+        with:
+          path: /root/.cache/rsync
+          key: rsync-cache
+
+      - name: Install rsync
+        run: |
+          apt-get update && apt-get install -y rsync
+        if: steps.cache-rsync.outputs.cache-hit != 'true'
+
+      - name: Cache Godot export templates
+        uses: actions/cache@v3
+        with:
+          path: ~/.local/share/godot/export_templates
+          key: godot-templates-cache
 
       - name: Setup
         run: |
